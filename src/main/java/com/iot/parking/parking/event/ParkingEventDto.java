@@ -1,7 +1,6 @@
-package com.iot.parking.parking;
+package com.iot.parking.parking.event;
 
 import lombok.Data;
-import lombok.Value;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

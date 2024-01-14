@@ -1,6 +1,7 @@
-package com.iot.parking.parking;
+package com.iot.parking.parking.event;
 
-import com.iot.parking.vehicle.Vehicle;
+import com.iot.parking.parking.Parking;
+import com.iot.parking.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,12 @@ public class ParkingEvent {
 	Long id;
 
 	@OneToOne
-	@JoinColumn(name = "vehicle_id")
-	Vehicle vehicle;
+	@JoinColumn(name = "parking_id")
+	Parking parking;
+
+	@OneToOne
+	@JoinColumn(name = "user_id")
+	User user;
 
 	private LocalDateTime timestamp;
 	private boolean entry;

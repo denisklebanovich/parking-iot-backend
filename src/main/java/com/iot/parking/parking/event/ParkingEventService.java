@@ -1,4 +1,4 @@
-package com.iot.parking.parking;
+package com.iot.parking.parking.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

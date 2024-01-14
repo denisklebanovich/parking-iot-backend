@@ -1,4 +1,4 @@
-package com.iot.parking.parking;
+package com.iot.parking.parking.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

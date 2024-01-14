@@ -12,6 +12,7 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
+	String rfid;
 
 	@Enumerated(EnumType.STRING)
 	UserRole role;
@@ -20,4 +21,5 @@ public class User {
 	String surname;
 	String username;
 	String password;
+	String licensePlate;
 }

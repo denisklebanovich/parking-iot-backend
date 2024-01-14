@@ -1,6 +1,5 @@
 package com.iot.parking.user;
 
-import com.iot.parking.vehicle.Vehicle;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)

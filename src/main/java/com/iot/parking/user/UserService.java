@@ -1,7 +1,5 @@
 package com.iot.parking.user;
 
-import com.iot.parking.vehicle.Vehicle;
-import com.iot.parking.vehicle.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

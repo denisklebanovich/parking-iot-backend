@@ -1,12 +1,11 @@
 package com.iot.parking.mqtt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iot.parking.parking.ParkingEventRequest;
-import com.iot.parking.parking.ParkingEventService;
+import com.iot.parking.parking.event.ParkingEventRequest;
+import com.iot.parking.parking.event.ParkingEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
