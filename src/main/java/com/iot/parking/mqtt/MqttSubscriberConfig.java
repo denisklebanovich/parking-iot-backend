@@ -22,8 +22,7 @@ import org.springframework.messaging.support.MessageBuilder;
 public class MqttSubscriberConfig {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	@Value("${spring.integration.mqtt.default.topic}")
-	private String defaultTopic;
+	private String defaultTopic = "parking";
 
 	private final ParkingEventService parkingEventService;
 
