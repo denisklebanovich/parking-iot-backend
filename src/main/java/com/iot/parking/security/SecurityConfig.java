@@ -11,6 +11,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +41,7 @@ public class SecurityConfig {
 
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(authz -> authz
-						.requestMatchers("/login").permitAll()
+						.requestMatchers("/auth/**").permitAll()
 						.requestMatchers("/parking/events").hasAuthority("ADMIN")
 						.anyRequest().authenticated())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -53,6 +55,17 @@ public class SecurityConfig {
 	@Bean
 	public NoOpPasswordEncoder passwordEncoder() {
 		return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+	}
+
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		return request -> {
+			CorsConfiguration corsConfiguration = new CorsConfiguration();
+			corsConfiguration.addAllowedOrigin("*");
+			corsConfiguration.addAllowedMethod("*");
+			corsConfiguration.addAllowedHeader("*");
+			return corsConfiguration;
+		};
 	}
 
 }
