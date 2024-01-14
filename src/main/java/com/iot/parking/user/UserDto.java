@@ -10,6 +10,7 @@ import java.io.Serializable;
  */
 @Data
 public class UserDto {
-	String username;
-	String password;
+	private String name;
+	private String surname;
+	private String licensePlate;
 }

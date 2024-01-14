@@ -13,11 +13,8 @@ import lombok.Setter;
 public class Vehicle {
 	@Id
 	String rfid;
-
 	@OneToOne
 	@JoinColumn(name = "user_id")
 	User user;
-
 	String licensePlate;
-	String type;
 }
