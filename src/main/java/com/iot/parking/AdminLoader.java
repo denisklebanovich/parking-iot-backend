@@ -1,5 +1,7 @@
 package com.iot.parking;
 
+import com.iot.parking.parking.Parking;
+import com.iot.parking.parking.ParkingRepository;
 import com.iot.parking.user.User;
 import com.iot.parking.user.UserRepository;
 import com.iot.parking.user.UserRole;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AdminLoader implements ApplicationRunner {
 	private final UserRepository userRepository;
+	private final ParkingRepository parkingRepository;
 
 	private final String ADMIN_USERNAME = "admin";
 	private final String ADMIN_PASSWORD = "admin";
@@ -24,6 +27,7 @@ public class AdminLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		User user = new User();
+		user.setRfid("123456789");
 		user.setName("Admin");
 		user.setSurname("Admin");
 		user.setRole(UserRole.ADMIN);
@@ -38,5 +42,11 @@ public class AdminLoader implements ApplicationRunner {
 		user.setUsername(USER_USERNAME);
 		user.setPassword(USER_PASSWORD);
 		userRepository.save(user);
+
+		Parking parking = new Parking();
+		parking.setAddress("ul. Wróblewskiego 27");
+		parking.setCapacity(100);
+		parking.setFreePlaces(100);
+		parkingRepository.save(parking);
 	}
 }

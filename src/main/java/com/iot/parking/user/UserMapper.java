@@ -6,8 +6,7 @@ import org.mapstruct.*;
 public interface UserMapper {
 	User toEntity(UserDto userDto);
 
-	@Mapping(target = "licensePlate", source = "vehicle.licensePlate")
-	UserDto toDto(User user, Vehicle vehicle);
+	UserDto toDto(User user);
 
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 	User partialUpdate(UserDto userDto, @MappingTarget User user);

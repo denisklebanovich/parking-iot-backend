@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ParkingEventRequest {
-	private String parkingId;
+	private Long parkingId;
 	private String rfid;
 	private boolean entry;
-	private LocalDateTime timestamp;
 }

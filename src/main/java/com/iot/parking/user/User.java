@@ -12,6 +12,8 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
+
+	@Column(unique = true, nullable = true)
 	String rfid;
 
 	@Enumerated(EnumType.STRING)
