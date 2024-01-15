@@ -40,6 +40,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		http.csrf(AbstractHttpConfigurer::disable)
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.authorizeHttpRequests(authz -> authz
 						.requestMatchers("/auth/**").permitAll()
 						.requestMatchers("/parking/events").hasAuthority("ADMIN")
