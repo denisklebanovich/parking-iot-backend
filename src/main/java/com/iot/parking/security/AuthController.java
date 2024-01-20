@@ -29,8 +29,7 @@ public class AuthController {
 			String username = authentication.getName();
 			var user = userRepository.findByUsername(username).orElseThrow(() -> new BadCredentialsException("User not found"));
 			String token = jwtUtil.createToken(user);
-			LoginResponse response = new LoginResponse(username, token);
-			return response;
+			return new LoginResponse(user.getId(), token);
 
 		} catch (BadCredentialsException e) {
 			return null;

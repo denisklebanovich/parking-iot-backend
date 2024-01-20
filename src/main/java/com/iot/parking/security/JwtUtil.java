@@ -30,7 +30,7 @@ public class JwtUtil {
 		Claims claims = Jwts.claims().setSubject(user.getUsername());
 		claims.put("name", user.getName());
 		claims.put("surname", user.getSurname());
-		claims.put("roles", List.of(user.getRole().name()));
+		claims.put("role", user.getRole().name());
 		Date tokenCreateTime = new Date();
 		Date tokenValidity = new Date(tokenCreateTime.getTime() + TimeUnit.MINUTES.toMillis(accessTokenValidity));
 		return Jwts.builder()

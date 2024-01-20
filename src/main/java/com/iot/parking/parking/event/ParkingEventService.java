@@ -18,21 +18,31 @@ public class ParkingEventService {
 	private final ParkingRepository parkingRepository;
 	private final UserRepository userRepository;
 
-	public ParkingEventDto registerParkingEvent(ParkingEventRequest request) {
+	public boolean registerParkingEvent(ParkingEventRequest request) {
 		ParkingEvent parkingEvent = new ParkingEvent();
-		var parking = parkingRepository.findById(request.getParkingId())
-				.orElseThrow(() -> new ServiceException(Reason.PARKING_NOT_FOUND));
-		parkingEvent.setParking(parking);
-		var user = userRepository.findByRfid(request.getRfid())
-				.orElseThrow(() -> new ServiceException(Reason.USER_NOT_FOUND));
-		parkingEvent.setUser(user);
+		var parking = parkingRepository.findById(request.getParkingId());
+		if (parking.isEmpty()) {
+			return false;
+		}
+		parkingEvent.setParking(parking.get());
+		var user = userRepository.findByRfid(request.getRfid());
+		if (user.isEmpty()) {
+			return false;
+		}
+		parkingEvent.setUser(user.get());
 		parkingEvent.setEntry(request.isEntry());
 		parkingEvent.setTimestamp(LocalDateTime.now());
-		return parkingEventMapper.toDto(parkingEventRepository.save(parkingEvent));
+		return true;
+	}
+
+	public List<ParkingEventDto> getParkingEvents() {
+		return parkingEventRepository.findAll().stream()
+				.map(parkingEventMapper::toDto)
+				.toList();
 	}
 
 	public List<ParkingEventDto> getUserParkingEvents(Long userId) {
-		return parkingEventRepository.findAllById(userId).stream()
+		return parkingEventRepository.findAllByUserId(userId).stream()
 				.map(parkingEventMapper::toDto)
 				.toList();
 	}

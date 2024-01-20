@@ -1,5 +1,6 @@
 package com.iot.parking;
 
+import com.iot.parking.mock.MockDataService;
 import com.iot.parking.parking.Parking;
 import com.iot.parking.parking.ParkingRepository;
 import com.iot.parking.user.User;
@@ -8,9 +9,6 @@ import com.iot.parking.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,11 +16,7 @@ import org.springframework.stereotype.Component;
 public class AdminLoader implements ApplicationRunner {
 	private final UserRepository userRepository;
 	private final ParkingRepository parkingRepository;
-
-	private final String ADMIN_USERNAME = "admin";
-	private final String ADMIN_PASSWORD = "admin";
-	private final String USER_USERNAME = "user";
-	private final String USER_PASSWORD = "user";
+	private final MockDataService mockDataService;
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
@@ -31,7 +25,9 @@ public class AdminLoader implements ApplicationRunner {
 		user.setName("Admin");
 		user.setSurname("Admin");
 		user.setRole(UserRole.ADMIN);
+		String ADMIN_USERNAME = "admin";
 		user.setUsername(ADMIN_USERNAME);
+		String ADMIN_PASSWORD = "admin";
 		user.setPassword(ADMIN_PASSWORD);
 		userRepository.save(user);
 
@@ -39,14 +35,12 @@ public class AdminLoader implements ApplicationRunner {
 		user.setName("User");
 		user.setSurname("User");
 		user.setRole(UserRole.USER);
+		String USER_USERNAME = "user";
 		user.setUsername(USER_USERNAME);
+		String USER_PASSWORD = "user";
 		user.setPassword(USER_PASSWORD);
 		userRepository.save(user);
 
-		Parking parking = new Parking();
-		parking.setAddress("ul. Wróblewskiego 27");
-		parking.setCapacity(100);
-		parking.setFreePlaces(100);
-		parkingRepository.save(parking);
+		mockDataService.generateMockData();
 	}
 }

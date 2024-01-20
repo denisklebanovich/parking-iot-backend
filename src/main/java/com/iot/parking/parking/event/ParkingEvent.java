@@ -13,17 +13,16 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @NoArgsConstructor
+@Table(name = "parking_events")
 public class ParkingEvent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 
-	@OneToOne
-	@JoinColumn(name = "parking_id")
+	@ManyToOne
 	Parking parking;
 
-	@OneToOne
-	@JoinColumn(name = "user_id")
+	@ManyToOne
 	User user;
 
 	private LocalDateTime timestamp;

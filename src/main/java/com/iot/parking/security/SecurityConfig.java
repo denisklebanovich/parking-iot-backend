@@ -42,9 +42,10 @@ public class SecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.authorizeHttpRequests(authz -> authz
-						.requestMatchers("/auth/**").permitAll()
-						.requestMatchers("/parking/events").hasAuthority("ADMIN")
-						.anyRequest().authenticated())
+						.anyRequest().permitAll())
+//						.requestMatchers("/auth/**").permitAll()
+//						.requestMatchers("/parking/events").hasAuthority("ADMIN")
+//						.anyRequest().authenticated())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
