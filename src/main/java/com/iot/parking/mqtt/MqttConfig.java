@@ -71,7 +71,7 @@ public class MqttConfig {
 						registerParkingEvent(request);
 						mqttOutputChannel().send(MessageBuilder.withPayload(false).build());
 					} catch (Exception e) {
-						log.error("Error while parsing MQTT message: " + payload, e);
+						log.error("Error while parsing MQTT message: " + payload + ", " + e.getMessage());
 					}
 					return null;
 				});
@@ -82,8 +82,8 @@ public class MqttConfig {
 			var registered = parkingEventService.registerParkingEvent(request);
 			mqttOutputChannel().send(MessageBuilder.withPayload(registered).build());
 		} catch (Exception e) {
-			log.error("Error while registering parking event: " + request.toString(), e.getMessage());
-			mqttOutputChannel().send(MessageBuilder.withPayload(false).build());
+			log.error("Error while registering parking event: " + request.toString() + ", " + e.getMessage());
+//			mqttOutputChannel().send(MessageBuilder.withPayload(false).build());
 		}
 	}
 

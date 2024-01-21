@@ -4,8 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import javax.swing.text.html.Option;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +28,8 @@ public interface ParkingEventRepository extends JpaRepository<ParkingEvent, Long
 	Long findMostPopularParkingId();
 
 	List<ParkingEvent> findAllByEntryTrueOrderByTimestamp();
+
+	List<ParkingEvent> findByUserIdOrderByTimestamp(Long userId);
+
+	Optional<ParkingEvent> findTopByUserIdOrderByTimestampDesc(Long userId);
 }

@@ -3,6 +3,7 @@ package com.iot.parking.parking;
 import com.iot.parking.parking.event.ParkingEventDto;
 import com.iot.parking.parking.event.ParkingEventService;
 import com.iot.parking.parking.statistics.ParkingStatistics;
+import com.iot.parking.user.ParkingHistory;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,8 +28,13 @@ public class ParkingController {
 	}
 
 	@GetMapping(value = "/events", params = "userId")
-	public List<ParkingEventDto> getUserEvents(Long userId) {
-		return parkingEventService.getUserParkingEvents(userId);
+	public List<ParkingHistory> getUserEvents(Long userId) {
+		return parkingEventService.getUserParkingEventHistory(userId);
+	}
+
+	@GetMapping("current")
+	public CurrentParkingInfo getCurrentParkingInfo(Long userId) {
+		return parkingService.getCurrentParkingInfo(userId);
 	}
 
 	@GetMapping("/info")

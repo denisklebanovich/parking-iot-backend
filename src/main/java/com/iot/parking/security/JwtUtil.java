@@ -7,7 +7,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -28,6 +27,7 @@ public class JwtUtil {
 
 	public String createToken(User user) {
 		Claims claims = Jwts.claims().setSubject(user.getUsername());
+		claims.put("id", user.getId());
 		claims.put("name", user.getName());
 		claims.put("surname", user.getSurname());
 		claims.put("role", user.getRole().name());

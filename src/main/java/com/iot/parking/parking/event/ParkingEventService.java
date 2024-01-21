@@ -3,11 +3,13 @@ package com.iot.parking.parking.event;
 import com.iot.parking.exception.Reason;
 import com.iot.parking.exception.ServiceException;
 import com.iot.parking.parking.ParkingRepository;
+import com.iot.parking.user.ParkingHistory;
 import com.iot.parking.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,11 +42,24 @@ public class ParkingEventService {
 				.map(parkingEventMapper::toDto)
 				.toList();
 	}
-
-	public List<ParkingEventDto> getUserParkingEvents(Long userId) {
-		return parkingEventRepository.findAllByUserId(userId).stream()
-				.map(parkingEventMapper::toDto)
-				.toList();
+	public List<ParkingHistory> getUserParkingEventHistory(Long userId) {
+		List<ParkingEvent> userEvents = parkingEventRepository.findByUserIdOrderByTimestamp(userId);
+		List<ParkingHistory> userParkingHistoryDTOs = new ArrayList<>();
+		ParkingEvent entryEvent = null;
+		for (ParkingEvent event : userEvents) {
+			if (event.isEntry()) {
+				entryEvent = event;
+			} else if (entryEvent != null) {
+				userParkingHistoryDTOs.add(new ParkingHistory(
+						entryEvent.getParking().getId(),
+						entryEvent.getParking().getAddress(),
+						entryEvent.getTimestamp(),
+						event.getTimestamp()
+				));
+				entryEvent = null;
+			}
+		}
+		return userParkingHistoryDTOs;
 	}
 
 }

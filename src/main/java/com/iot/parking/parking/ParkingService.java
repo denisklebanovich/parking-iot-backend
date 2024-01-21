@@ -1,7 +1,6 @@
 package com.iot.parking.parking;
 
 import com.iot.parking.parking.event.ParkingEvent;
-import com.iot.parking.parking.event.ParkingEventDto;
 import com.iot.parking.parking.event.ParkingEventMapper;
 import com.iot.parking.parking.event.ParkingEventRepository;
 import com.iot.parking.parking.statistics.ParkingStatistics;
@@ -80,5 +79,23 @@ public class ParkingService {
 				.filter(exitEvent -> !exitEvent.isEntry() && exitEvent.getUser().equals(entryEvent.getUser()) && exitEvent.getTimestamp().isAfter(entryEvent.getTimestamp()))
 				.min((e1, e2) -> e1.getTimestamp().compareTo(e2.getTimestamp()))
 				.orElse(null);
+	}
+
+	public CurrentParkingInfo getCurrentParkingInfo(Long userId) {
+		return parkingEventRepository.findByUserIdOrderByTimestamp(userId).stream()
+				.filter(ParkingEvent::isEntry)
+				.map(this::toCurrentParkingInfo)
+				.findFirst()
+				.orElse(null);
+	}
+
+	private CurrentParkingInfo toCurrentParkingInfo(ParkingEvent parkingEvent) {
+		CurrentParkingInfo currentParkingInfo = new CurrentParkingInfo();
+		currentParkingInfo.setId(parkingEvent.getParking().getId());
+		currentParkingInfo.setAddress(parkingEvent.getParking().getAddress());
+		currentParkingInfo.setCapacity(parkingEvent.getParking().getCapacity());
+		currentParkingInfo.setFreePlaces(parkingEvent.getParking().getFreePlaces());
+		currentParkingInfo.setEntryTimestamp(parkingEvent.getTimestamp());
+		return currentParkingInfo;
 	}
 }
