@@ -8,7 +8,7 @@ import java.time.Duration;
 public class ParkingStatistics {
 	private Integer totalUsers;
 	private Integer totalParkingPlaces;
-	private Duration averageStayTime;
+	private Integer averageStayTime;
 	private Long mostPopularParkingId;
 	private String mostPopularParkingAddress;
 }

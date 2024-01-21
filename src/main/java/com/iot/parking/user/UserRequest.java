@@ -1,6 +1,9 @@
 package com.iot.parking.user;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 public class UserRequest {
@@ -10,5 +13,4 @@ public class UserRequest {
 	private String password;
 	private String rfid;
 	private String licensePlate;
-
 }

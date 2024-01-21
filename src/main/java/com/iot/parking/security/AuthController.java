@@ -1,6 +1,9 @@
 package com.iot.parking.security;
 
+import com.iot.parking.user.UserDto;
 import com.iot.parking.user.UserRepository;
+import com.iot.parking.user.UserRequest;
+import com.iot.parking.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,6 +21,7 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
+	private final UserService userService;
 
 
 	@PostMapping(value = "/signin")
@@ -34,5 +38,10 @@ public class AuthController {
 		} catch (BadCredentialsException e) {
 			return null;
 		}
+	}
+
+	@PostMapping("/register")
+	public UserDto register(@RequestBody UserRequest request) {
+		return userService.registerUser(request);
 	}
 }

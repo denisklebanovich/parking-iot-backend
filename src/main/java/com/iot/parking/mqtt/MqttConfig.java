@@ -69,7 +69,7 @@ public class MqttConfig {
 					try {
 						ParkingEventRequest request = objectMapper.readValue(payload, ParkingEventRequest.class);
 						registerParkingEvent(request);
-						mqttOutputChannel().send(MessageBuilder.withPayload(false).build());
+						//mqttOutputChannel().send(MessageBuilder.withPayload(false).build());
 					} catch (Exception e) {
 						log.error("Error while parsing MQTT message: " + payload + ", " + e.getMessage());
 					}
@@ -80,7 +80,7 @@ public class MqttConfig {
 	private void registerParkingEvent(ParkingEventRequest request) {
 		try {
 			var registered = parkingEventService.registerParkingEvent(request);
-			mqttOutputChannel().send(MessageBuilder.withPayload(registered).build());
+			//mqttOutputChannel().send(MessageBuilder.withPayload(registered).build());
 		} catch (Exception e) {
 			log.error("Error while registering parking event: " + request.toString() + ", " + e.getMessage());
 //			mqttOutputChannel().send(MessageBuilder.withPayload(false).build());
@@ -94,31 +94,31 @@ public class MqttConfig {
 				.register();
 	}
 
-	@Bean
-	public MessageChannel mqttOutputChannel() {
-		return new DirectChannel();
-	}
-
-	@Bean
-	@ServiceActivator(inputChannel = "mqttOutputChannel")
-	public MessageHandler mqttOutbound() {
-		MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(clientId + "-outbound", brokerUrl);
-		messageHandler.setAsync(true);
-		messageHandler.setDefaultTopic(outboundTopic);
-		return messageHandler;
-	}
-
-	@Bean
-	public IntegrationFlow mqttOutFlow() {
-		return f -> f
-				.handle(mqttOutbound());
-	}
-
-	@Bean
-	public IntegrationFlowContext.IntegrationFlowRegistration mqttOutFlowRegistration(IntegrationFlow mqttOutFlow) {
-		return this.integrationFlowContext.registration(mqttOutFlow)
-				.id("mqttOutFlow")
-				.autoStartup(true)
-				.register();
-	}
+//	@Bean
+//	public MessageChannel mqttOutputChannel() {
+//		return new DirectChannel();
+//	}
+//
+//	@Bean
+//	@ServiceActivator(inputChannel = "mqttOutputChannel")
+//	public MessageHandler mqttOutbound() {
+//		MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(clientId + "-outbound", brokerUrl);
+//		messageHandler.setAsync(true);
+//		messageHandler.setDefaultTopic(outboundTopic);
+//		return messageHandler;
+//	}
+//
+//	@Bean
+//	public IntegrationFlow mqttOutFlow() {
+//		return f -> f
+//				.handle(mqttOutbound());
+//	}
+//
+//	@Bean
+//	public IntegrationFlowContext.IntegrationFlowRegistration mqttOutFlowRegistration(IntegrationFlow mqttOutFlow) {
+//		return this.integrationFlowContext.registration(mqttOutFlow)
+//				.id("mqttOutFlow")
+//				.autoStartup(true)
+//				.register();
+//	}
 }

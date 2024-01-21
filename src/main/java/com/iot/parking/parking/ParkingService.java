@@ -4,7 +4,6 @@ import com.iot.parking.parking.event.ParkingEvent;
 import com.iot.parking.parking.event.ParkingEventMapper;
 import com.iot.parking.parking.event.ParkingEventRepository;
 import com.iot.parking.parking.statistics.ParkingStatistics;
-import com.iot.parking.user.UserDto;
 import com.iot.parking.user.UserMapper;
 import com.iot.parking.user.UserRepository;
 import com.iot.parking.user.UserRole;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -36,9 +36,10 @@ public class ParkingService {
 		parkingInfo.setAddress(parking.getAddress());
 		parkingInfo.setCapacity(parking.getCapacity());
 		parkingInfo.setFreePlaces(parking.getFreePlaces());
-		List<UserDto> users = parkingEventRepository.findLatestEntriesByParkingId(parking.getId()).stream()
-				.map(ParkingEvent::getUser)
-				.map(userMapper::toDto)
+		List<ParkingInfo.ParkedUser> users = parkingEventRepository.findLatestEntriesByParkingId(parking.getId()).stream()
+				.map(event -> new ParkingInfo.ParkedUser(event.getUser().getName(),
+						event.getUser().getSurname(),
+						event.getTimestamp()))
 				.toList();
 		parkingInfo.setUsers(users);
 		return parkingInfo;
@@ -59,30 +60,31 @@ public class ParkingService {
 		return parkingStatistics;
 	}
 
-	public Duration getAverageStayTime() {
+	public Integer getAverageStayTime() {
 		List<ParkingEvent> entryEvents = parkingEventRepository.findAllByEntryTrueOrderByTimestamp();
-		List<Long> stayTimesInSeconds = entryEvents.stream()
-				.map(entryEvent -> {
-					ParkingEvent exitEvent = findExitEvent(entryEvents, entryEvent);
+		List<ParkingEvent> exitEvents = parkingEventRepository.findAllByEntryFalseOrderByTimestamp();
+		double averageStayTimeSeconds = entryEvents.stream()
+				.mapToDouble(entryEvent -> {
+					ParkingEvent exitEvent = findExitEvent(exitEvents, entryEvent);
 					return exitEvent != null ? Duration.between(entryEvent.getTimestamp(), exitEvent.getTimestamp()).getSeconds() : 0;
 				})
-				.toList();
-		double averageStayTimeSeconds = stayTimesInSeconds.stream()
-				.mapToLong(Long::longValue)
 				.average()
 				.orElse(0);
-		return Duration.ofSeconds((long) averageStayTimeSeconds);
+
+		return (int) (averageStayTimeSeconds / 60);
 	}
 
-	private ParkingEvent findExitEvent(List<ParkingEvent> entryEvents, ParkingEvent entryEvent) {
-		return entryEvents.stream()
-				.filter(exitEvent -> !exitEvent.isEntry() && exitEvent.getUser().equals(entryEvent.getUser()) && exitEvent.getTimestamp().isAfter(entryEvent.getTimestamp()))
-				.min((e1, e2) -> e1.getTimestamp().compareTo(e2.getTimestamp()))
+	private ParkingEvent findExitEvent(List<ParkingEvent> exitEvents, ParkingEvent entryEvent) {
+		return exitEvents.stream()
+				.filter(exitEvent ->
+						exitEvent.getUser().equals(entryEvent.getUser()) &&
+								(exitEvent.getTimestamp().isAfter(entryEvent.getTimestamp())))
+				.min(Comparator.comparing(ParkingEvent::getTimestamp))
 				.orElse(null);
 	}
 
 	public CurrentParkingInfo getCurrentParkingInfo(Long userId) {
-		return parkingEventRepository.findByUserIdOrderByTimestamp(userId).stream()
+		return parkingEventRepository.findTopByUserIdOrderByTimestampDesc(userId).stream()
 				.filter(ParkingEvent::isEntry)
 				.map(this::toCurrentParkingInfo)
 				.findFirst()

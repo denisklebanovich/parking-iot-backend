@@ -22,18 +22,20 @@ public class ParkingEventService {
 
 	public boolean registerParkingEvent(ParkingEventRequest request) {
 		ParkingEvent parkingEvent = new ParkingEvent();
-		var parking = parkingRepository.findById(request.getParkingId());
-		if (parking.isEmpty()) {
-			return false;
-		}
-		parkingEvent.setParking(parking.get());
-		var user = userRepository.findByRfid(request.getRfid());
-		if (user.isEmpty()) {
-			return false;
-		}
-		parkingEvent.setUser(user.get());
+		var parking = parkingRepository.findById(request.getParkingId())
+				.orElseThrow(() -> new ServiceException(Reason.PARKING_NOT_FOUND));
+		parkingEvent.setParking(parking);
+		var user = userRepository.findByRfid(request.getRfid())
+				.orElseThrow(() -> new ServiceException(Reason.USER_NOT_FOUND));
+		parkingEvent.setUser(user);
 		parkingEvent.setEntry(request.isEntry());
 		parkingEvent.setTimestamp(LocalDateTime.now());
+		parkingEventRepository.save(parkingEvent);
+		if (parkingEvent.isEntry()) {
+			parking.takePlace();
+		} else {
+			parking.leavePlace();
+		}
 		return true;
 	}
 
@@ -42,8 +44,9 @@ public class ParkingEventService {
 				.map(parkingEventMapper::toDto)
 				.toList();
 	}
+
 	public List<ParkingHistory> getUserParkingEventHistory(Long userId) {
-		List<ParkingEvent> userEvents = parkingEventRepository.findByUserIdOrderByTimestamp(userId);
+		List<ParkingEvent> userEvents = parkingEventRepository.findAllByUserIdOrderByTimestampDesc(userId);
 		List<ParkingHistory> userParkingHistoryDTOs = new ArrayList<>();
 		ParkingEvent entryEvent = null;
 		for (ParkingEvent event : userEvents) {

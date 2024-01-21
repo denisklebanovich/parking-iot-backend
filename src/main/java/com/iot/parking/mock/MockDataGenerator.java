@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Component
@@ -18,7 +19,9 @@ public class MockDataGenerator {
 	private final Faker faker;
 
 	public MockDataGenerator() {
-		this.faker = new Faker();
+		Random random = new Random();
+		random.setSeed(69);
+		this.faker = new Faker(random);
 	}
 
 	public List<User> generateUsers(int count) {
@@ -43,8 +46,7 @@ public class MockDataGenerator {
 			Parking parking = new Parking();
 			parking.setAddress(faker.address().fullAddress());
 			parking.setCapacity(faker.number().numberBetween(50, 200));
-			parking.setFreePlaces(faker.number().numberBetween(0, parking.getCapacity()));
-
+			parking.setFreePlaces(parking.getCapacity());
 			parkings.add(parking);
 		}
 		return parkings;
@@ -53,26 +55,36 @@ public class MockDataGenerator {
 	public List<ParkingEvent> generateParkingEvents(List<User> users, List<Parking> parkings, int count) {
 		List<ParkingEvent> parkingEvents = new ArrayList<>();
 		LocalDateTime now = LocalDateTime.now();
-
-		for (int i = 0; i < count; i++) {
+		int pastCount = (int) (count * 0.9);
+		int currentCount = count - pastCount;
+		for (int i = 0; i < pastCount; i++) {
 			ParkingEvent entryEvent = new ParkingEvent();
 			entryEvent.setParking(getRandomElement(parkings));
 			entryEvent.setUser(getRandomElement(users));
-			entryEvent.setTimestamp(now.minusMinutes(ThreadLocalRandom.current().nextInt(60 * 24))); // Random timestamp within the last 24 hours
+			var entryTimestamp = now.minusDays(ThreadLocalRandom.current().nextInt(60 * 24));
+			entryEvent.setTimestamp(entryTimestamp); // Random timestamp within the last 24 hours
 			entryEvent.setEntry(true);
 
 			parkingEvents.add(entryEvent);
 
 			// Generate a corresponding exit event
-			if (ThreadLocalRandom.current().nextBoolean() && i < count - 1) {
-				ParkingEvent exitEvent = new ParkingEvent();
-				exitEvent.setParking(entryEvent.getParking());
-				exitEvent.setUser(entryEvent.getUser());
-				exitEvent.setTimestamp(entryEvent.getTimestamp().plusMinutes(ThreadLocalRandom.current().nextInt(1, 60))); // Random exit timestamp within 1 to 60 minutes
-				exitEvent.setEntry(false);
+			ParkingEvent exitEvent = new ParkingEvent();
+			exitEvent.setParking(entryEvent.getParking());
+			exitEvent.setUser(entryEvent.getUser());
+			exitEvent.setTimestamp(entryTimestamp.plusMinutes(ThreadLocalRandom.current().nextInt(1, 1200))); // Random exit timestamp within 1 to 60 minutes
+			exitEvent.setEntry(false);
 
-				parkingEvents.add(exitEvent);
-			}
+			parkingEvents.add(exitEvent);
+		}
+		for (int i = 0; i < currentCount; i++) {
+			ParkingEvent entryEvent = new ParkingEvent();
+			entryEvent.setParking(getRandomElement(parkings));
+			entryEvent.setUser(getRandomElement(users));
+			entryEvent.setTimestamp(now.minusMinutes(ThreadLocalRandom.current().nextInt(1, 60))); // Random timestamp within the last 60 minutes
+			entryEvent.setEntry(true);
+			parkingEvents.add(entryEvent);
+
+			entryEvent.getParking().takePlace();
 		}
 
 		return parkingEvents;

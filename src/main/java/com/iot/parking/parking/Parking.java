@@ -17,4 +17,12 @@ public class Parking {
 	private String address;
 	private Integer capacity;
 	private Integer freePlaces;
+
+	public void takePlace() {
+		freePlaces--;
+	}
+
+	public void leavePlace() {
+		freePlaces++;
+	}
 }
