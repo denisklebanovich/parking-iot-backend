@@ -28,9 +28,11 @@ public interface ParkingEventRepository extends JpaRepository<ParkingEvent, Long
 	Long findMostPopularParkingId();
 
 	List<ParkingEvent> findAllByEntryTrueOrderByTimestamp();
+
 	List<ParkingEvent> findAllByEntryFalseOrderByTimestamp();
 
 	List<ParkingEvent> findAllByUserIdOrderByTimestampDesc(Long userId);
 
 	Optional<ParkingEvent> findTopByUserIdOrderByTimestampDesc(Long userId);
+
 }

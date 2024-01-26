@@ -30,41 +30,79 @@ public class MqttSenderConfig {
 	@Value("${mqtt.client.id}")
 	private String clientId;
 
-	@Value("${mqtt.topic.outbound}")
-	private String outboundTopic;
+	@Value("${mqtt.topic.outbound.entry}")
+	private String outboundEntryTopic;
+
+	@Value("${mqtt.topic.outbound.exit}")
+	private String outboundExitTopic;
 
 	@Bean
-	@ServiceActivator(inputChannel = "mqttOutboundChannel")
-	public MessageHandler mqttOutbound() {
+	@ServiceActivator(inputChannel = "mqttOutboundEntryChannel")
+	public MessageHandler mqttOutboundEntry() {
 		MqttPahoMessageHandler messageHandler =
-				new MqttPahoMessageHandler(brokerUrl, clientId + "-out");
+				new MqttPahoMessageHandler(brokerUrl, clientId + "-entry");
 		messageHandler.setAsync(true);
-		messageHandler.setDefaultTopic(outboundTopic);
+		messageHandler.setDefaultTopic(outboundEntryTopic);
 		return messageHandler;
 	}
 
 	@Bean
-	public MessageChannel mqttOutboundChannel() {
+	@ServiceActivator(inputChannel = "mqttOutboundExitChannel")
+	public MessageHandler mqttOutboundExit() {
+		MqttPahoMessageHandler messageHandler =
+				new MqttPahoMessageHandler(brokerUrl, clientId + "-exit");
+		messageHandler.setAsync(true);
+		messageHandler.setDefaultTopic(outboundExitTopic);
+		return messageHandler;
+	}
+
+	@Bean
+	public MessageChannel mqttOutboundEntryChannel() {
 		return new DirectChannel();
 	}
 
 	@Bean
-	public IntegrationFlow mqttOutboundFlow() {
-		return IntegrationFlow.from("mqttOutboundChannel")
-				.handle(mqttOutbound())
+	public MessageChannel mqttOutboundExitChannel() {
+		return new DirectChannel();
+	}
+
+	@Bean
+	public IntegrationFlow mqttOutboundEntryFlow() {
+		return IntegrationFlow.from("mqttOutboundEntryChannel")
+				.handle(mqttOutboundEntry())
 				.get();
 	}
 
 	@Bean
-	public IntegrationFlowContext.IntegrationFlowRegistration mqttOutFlowRegistration(
-			@Qualifier("mqttOutboundFlow") IntegrationFlow mqttOutboundFlow) {
-		return this.integrationFlowContext.registration(mqttOutboundFlow)
-				.id("mqttOutboundFlow")
+	public IntegrationFlow mqttOutboundExitFlow() {
+		return IntegrationFlow.from("mqttOutboundExitChannel")
+				.handle(mqttOutboundExit())
+				.get();
+	}
+
+	@Bean
+	public IntegrationFlowContext.IntegrationFlowRegistration mqttOutEntryFlowRegistration(
+			@Qualifier("mqttOutboundEntryFlow") IntegrationFlow mqttOutboundEntryFlow) {
+		return this.integrationFlowContext.registration(mqttOutboundEntryFlow)
+				.id("mqttOutboundFlow1")
 				.register();
 	}
 
-	public void send(String payload) {
-		mqttOutboundChannel().send(MessageBuilder.withPayload(payload).build());
+	@Bean
+	public IntegrationFlowContext.IntegrationFlowRegistration mqttOutExitFlowRegistration(
+			@Qualifier("mqttOutboundExitFlow") IntegrationFlow mqttOutboundExitFlow) {
+		return this.integrationFlowContext.registration(mqttOutboundExitFlow)
+				.id("mqttOutboundFlow2")
+				.register();
+	}
+
+	public void sendToEntry(String payload) {
+		mqttOutboundEntryChannel().send(MessageBuilder.withPayload(payload).build());
+	}
+
+	public void sendToExit(String payload) {
+		mqttOutboundExitChannel().send(MessageBuilder.withPayload(payload).build());
 	}
 }
+
 

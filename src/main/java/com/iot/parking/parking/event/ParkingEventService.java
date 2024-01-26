@@ -20,13 +20,17 @@ public class ParkingEventService {
 	private final ParkingRepository parkingRepository;
 	private final UserRepository userRepository;
 
-	public boolean registerParkingEvent(ParkingEventRequest request) {
+	public void registerParkingEvent(ParkingEventRequest request) {
 		ParkingEvent parkingEvent = new ParkingEvent();
 		var parking = parkingRepository.findById(request.getParkingId())
 				.orElseThrow(() -> new ServiceException(Reason.PARKING_NOT_FOUND));
 		parkingEvent.setParking(parking);
 		var user = userRepository.findByRfid(request.getRfid())
 				.orElseThrow(() -> new ServiceException(Reason.USER_NOT_FOUND));
+		var latestEntry = parkingEventRepository.findTopByUserIdOrderByTimestampDesc(user.getId());
+		if (latestEntry.isPresent() && latestEntry.get().isEntry() == request.isEntry()) {
+			throw new ServiceException(Reason.PARKING_CONFLICT);
+		}
 		parkingEvent.setUser(user);
 		parkingEvent.setEntry(request.isEntry());
 		parkingEvent.setTimestamp(LocalDateTime.now());
@@ -36,7 +40,6 @@ public class ParkingEventService {
 		} else {
 			parking.leavePlace();
 		}
-		return true;
 	}
 
 	public List<ParkingEventDto> getParkingEvents() {
@@ -48,18 +51,18 @@ public class ParkingEventService {
 	public List<ParkingHistory> getUserParkingEventHistory(Long userId) {
 		List<ParkingEvent> userEvents = parkingEventRepository.findAllByUserIdOrderByTimestampDesc(userId);
 		List<ParkingHistory> userParkingHistoryDTOs = new ArrayList<>();
-		ParkingEvent entryEvent = null;
+		ParkingEvent exitEvent = null;
 		for (ParkingEvent event : userEvents) {
-			if (event.isEntry()) {
-				entryEvent = event;
-			} else if (entryEvent != null) {
+			if (!event.isEntry()) {
+				exitEvent = event;
+			} else if (exitEvent != null) {
 				userParkingHistoryDTOs.add(new ParkingHistory(
-						entryEvent.getParking().getId(),
-						entryEvent.getParking().getAddress(),
-						entryEvent.getTimestamp(),
+						exitEvent.getParking().getId(),
+						exitEvent.getParking().getAddress(),
+						exitEvent.getTimestamp(),
 						event.getTimestamp()
 				));
-				entryEvent = null;
+				exitEvent = null;
 			}
 		}
 		return userParkingHistoryDTOs;

@@ -79,10 +79,18 @@ public class MqttSubscriberConfig {
 
 	private void registerParkingEvent(ParkingEventRequest request) {
 		try {
-			var registered = parkingEventService.registerParkingEvent(request);
-			mqttSenderConfig.send(String.valueOf(registered));
+			parkingEventService.registerParkingEvent(request);
+			if (request.isEntry()) {
+				mqttSenderConfig.sendToEntry(Boolean.TRUE.toString());
+			} else {
+				mqttSenderConfig.sendToExit(Boolean.TRUE.toString());
+			}
 		} catch (Exception e) {
-			mqttSenderConfig.send(Boolean.FALSE.toString());
+			if (request.isEntry()) {
+				mqttSenderConfig.sendToEntry(Boolean.FALSE.toString());
+			} else {
+				mqttSenderConfig.sendToExit(Boolean.FALSE.toString());
+			}
 			log.error("Error while registering parking event: " + request.toString() + ", " + e.getMessage());
 		}
 	}
