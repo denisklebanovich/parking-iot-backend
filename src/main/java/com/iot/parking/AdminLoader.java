@@ -21,7 +21,6 @@ public class AdminLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		User user = new User();
-		user.setRfid("123456789");
 		user.setName("Admin");
 		user.setSurname("Admin");
 		user.setRole(UserRole.ADMIN);
@@ -32,6 +31,7 @@ public class AdminLoader implements ApplicationRunner {
 		userRepository.save(user);
 
 		user = new User();
+		user.setRfid("123456789");
 		user.setName("User");
 		user.setSurname("User");
 		user.setRole(UserRole.USER);
